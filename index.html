@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Anjali, this one is for you</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0720; --ink:#fff4ec; --soft:#d9c8e6; --gold:#ffb347; --rose:#ff5c85; --violet:#7a4be0;
+  --panel:rgba(22,10,44,.62);
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,sans-serif;overflow:hidden}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+#fx{pointer-events:none;z-index:5}
+.stage{position:fixed;left:0;right:0;bottom:0;z-index:3;padding:0 22px max(28px,env(safe-area-inset-bottom));
+  display:flex;justify-content:center;pointer-events:none;opacity:0;transform:translateY(14px);transition:opacity .6s,transform .6s;visibility:hidden}
+.stage.on{opacity:1;transform:none;pointer-events:auto;visibility:visible}
+.card{width:min(560px,100%);text-align:center;padding:26px 24px 24px;border-radius:26px;background:var(--panel);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,220,200,.14)}
+h1{font-size:clamp(30px,6.4vw,50px);line-height:1.05;font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(23px,5vw,32px);line-height:1.15;font-weight:600;letter-spacing:-.01em}
+p{color:var(--soft);line-height:1.5;margin-top:10px;font-size:16px}
+.hand{font-family:Caveat,cursive;font-size:26px;color:var(--gold);margin-top:6px}
+button,.btn{font:inherit;font-weight:600;cursor:pointer;border:0;border-radius:999px;padding:14px 26px;font-size:17px;color:#2a0f12;
+  background:linear-gradient(120deg,#ffc15e,#ff8aa0);text-decoration:none;display:inline-block;transition:transform .15s,box-shadow .2s;
+  box-shadow:0 8px 28px rgba(255,120,120,.28)}
+button:hover,.btn:hover{transform:translateY(-2px) scale(1.02)}
+button:active{transform:scale(.97)}
+button:focus-visible,.btn:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.go{margin-top:20px}
+.opts{display:grid;gap:10px;margin-top:18px}
+.opt{background:rgba(255,255,255,.06);color:var(--ink);border:1px solid rgba(255,230,210,.22);box-shadow:none;padding:13px 18px;font-size:16px;font-weight:400;text-align:left;border-radius:16px}
+.opt:hover{background:rgba(255,255,255,.12)}
+.opt[disabled]{opacity:.45;pointer-events:none}
+.opt.picked{opacity:1;border-color:var(--gold);background:rgba(255,179,71,.14)}
+.reply{min-height:0;margin-top:14px;color:var(--gold);font-family:Caveat,cursive;font-size:27px;line-height:1.15}
+.dots{display:flex;gap:6px;justify-content:center;margin-bottom:14px}
+.dots i{width:22px;height:4px;border-radius:3px;background:rgba(255,255,255,.18)}
+.dots i.d{background:var(--gold)}
+.pair{display:flex;gap:16px;justify-content:center;align-items:center;margin-top:24px;min-height:54px}
+.yes{padding:15px 40px;font-size:19px}
+#no{background:transparent;color:var(--soft);border:1px solid rgba(255,230,210,.35);box-shadow:none;padding:13px 30px;font-weight:400}
+#no.fly{position:fixed;z-index:9;transition:left .28s cubic-bezier(.3,1.5,.5,1),top .28s cubic-bezier(.3,1.5,.5,1);background:rgba(30,14,56,.9)}
+.taunt{height:30px;margin-top:12px;color:var(--soft);font-size:15px}
+.note{position:fixed;z-index:2;bottom:-60px;left:var(--x);max-width:230px;padding:10px 15px;border-radius:14px 14px 14px 4px;
+  background:rgba(255,244,236,.94);color:#3a1a2e;font-family:Caveat,cursive;font-size:23px;line-height:1.05;rotate:var(--r);
+  animation:rise var(--t) cubic-bezier(.2,.6,.3,1) forwards;pointer-events:none}
+@keyframes rise{0%{transform:translateY(0);opacity:0}12%{opacity:1}80%{opacity:1}100%{transform:translateY(-110vh);opacity:0}}
+@media(max-width:420px){.card{padding:22px 18px}.note{font-size:21px;max-width:190px}}
+@media(prefers-reduced-motion:reduce){.stage{transition:none}}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<canvas id="fx"></canvas>
+
+<section class="stage on" id="s0">
+  <div class="card">
+    <h1>Anjali,<br>somebody made this for you.</h1>
+    <p class="hand">It takes two minutes. Promise.</p>
+    <button class="go" id="open">Open it</button>
+  </div>
+</section>
+
+<section class="stage" id="s1">
+  <div class="card">
+    <h2>Okay, you can stop blushing now.</h2>
+    <p>Every word floating around you is true.</p>
+    <button class="go" id="toQ" style="visibility:hidden">Fine, what next?</button>
+  </div>
+</section>
+
+<section class="stage" id="s2">
+  <div class="card">
+    <div class="dots" id="dots"></div>
+    <h2 id="qt"></h2>
+    <div class="opts" id="qo"></div>
+    <div class="reply" id="qr"></div>
+    <button class="go" id="qn" style="display:none">Next</button>
+  </div>
+</section>
+
+<section class="stage" id="s3">
+  <div class="card">
+    <h2>One last, serious question.</h2>
+    <p>Let's plan to meet with Hitesh, if you feel okay?</p>
+    <div class="pair">
+      <button class="yes" id="yes">Yes</button>
+      <button id="no">No</button>
+    </div>
+    <div class="taunt" id="taunt"></div>
+  </div>
+</section>
+
+<section class="stage" id="s4">
+  <div class="card">
+    <h1>Yayyy!</h1>
+    <p class="hand">Best decision of your whole week.</p>
+    <p>Hitesh is probably smiling at his phone right now. Say hi to him.</p>
+    <a class="btn go" id="wa" target="_blank" rel="noopener">Let's talk to Hitesh</a>
+  </div>
+</section>
+
+<script>
+(function(){
+"use strict";
+/* ---------- WebGL orb ---------- */
+var cv=document.getElementById('gl'),gl=cv.getContext('webgl',{antialias:false,alpha:false});
+var VS='attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+var FS=[
+'precision highp float;',
+'uniform vec2 R,C,M;uniform float T,B,RAD;',
+'float h1(vec3 p){p=fract(p*.3183099+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}',
+'float h2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
+'float nz(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);',
+' return mix(mix(mix(h1(i),h1(i+vec3(1,0,0)),f.x),mix(h1(i+vec3(0,1,0)),h1(i+vec3(1,1,0)),f.x),f.y),',
+'            mix(mix(h1(i+vec3(0,0,1)),h1(i+vec3(1,0,1)),f.x),mix(h1(i+vec3(0,1,1)),h1(i+vec3(1,1,1)),f.x),f.y),f.z);}',
+'float fbm(vec3 p){float a=.5,s=0.;for(int i=0;i<4;i++){s+=a*nz(p);p=p*2.03+vec3(1.7,9.2,3.1);a*=.5;}return s;}',
+'float stars(vec2 uv,float sc,float sp){vec2 g=uv*sc+vec2(T*sp,T*sp*.3);vec2 c=floor(g),f=fract(g)-.5;',
+' float h=h2(c);vec2 o=(vec2(h2(c+3.1),h2(c+7.7))-.5)*.6;float d=length(f-o);',
+' float on=step(.78,h);float tw=.55+.45*sin(T*(1.5+h*3.)+h*40.);return on*tw*smoothstep(.07+.05*h,0.,d);}',
+'mat2 rot(float a){float s=sin(a),c=cos(a);return mat2(c,-s,s,c);}',
+'void main(){',
+' vec2 uv=(gl_FragCoord.xy-.5*R)/min(R.x,R.y);vec2 q=uv-C;float r=length(q);',
+' vec3 col=mix(vec3(.05,.02,.12),vec3(.1,.03,.17),smoothstep(.9,0.,length(uv)));',
+' float st=stars(uv+M*.02,26.,.012)+.7*stars(uv+M*.04,14.,.02)+.5*stars(uv+M*.07,7.,.03);',
+' col+=st*vec3(1.,.9,.8);',
+' float rad=RAD*(1.+.03*B);',
+' float ang=atan(q.y,q.x);',
+' float gl=exp(-max(r-rad,0.)*(6.5-B*2.))*(.65+.35*nz(vec3(ang*1.6,T*.4,1.)));',
+' vec3 gc=mix(vec3(1.,.36,.52),vec3(1.,.7,.28),nz(vec3(ang*1.2,T*.3,5.)));',
+' col+=gl*gc*(.55+.5*B);',
+' if(r<rad){',
+'  float z=sqrt(1.-(r*r)/(rad*rad));vec3 n=vec3(q/rad,z);',
+'  n.xz*=rot(T*.18+M.x*.5);n.yz*=rot(M.y*.4+.3);',
+'  vec3 p=n*2.1;',
+'  float f1=fbm(p+vec3(0.,T*.22,0.));',
+'  float f2=fbm(p*1.7-vec3(T*.16,0.,T*.1)+f1*1.6);',
+'  vec3 c=mix(vec3(.28,.12,.62),vec3(1.,.28,.5),smoothstep(.28,.62,f2));',
+'  c=mix(c,vec3(1.,.74,.3),smoothstep(.55,.9,f1*f2*2.2));',
+'  c+=vec3(1.,.9,.8)*pow(max(f2-.55,0.),2.)*3.;',
+'  float rim=pow(1.-z,2.4);c+=rim*vec3(1.,.55,.65)*1.5;',
+'  c*=.55+.65*z+B*.35;',
+'  col=mix(col,c,smoothstep(rad,rad-.006,r));',
+' }',
+' gl_FragColor=vec4(col,1.);}'
+].join('\n');
+function sh(t,s){var o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);return o;}
+var pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));
+gl.linkProgram(pr);gl.useProgram(pr);
+var buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+var loc=gl.getAttribLocation(pr,'p');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+var U={};['R','C','M','T','B','RAD'].forEach(function(k){U[k]=gl.getUniformLocation(pr,k);});
+var fx=document.getElementById('fx'),fc=fx.getContext('2d'),W,H,dpr;
+function size(){dpr=Math.min(window.devicePixelRatio||1,1.5);W=innerWidth;H=innerHeight;
+  cv.width=W*dpr;cv.height=H*dpr;fx.width=W;fx.height=H;gl.viewport(0,0,cv.width,cv.height);}
+addEventListener('resize',size);size();
+
+var mx=0,my=0,tmx=0,tmy=0;
+addEventListener('pointermove',function(e){tmx=(e.clientX/W-.5)*2;tmy=-(e.clientY/H-.5)*2;});
+var pose={cy:.1,rad:.24},target={cy:.1,rad:.24},burst=0;
+function setPose(name){
+  var portrait=H>W;
+  var P={land:{cy:portrait?.2:.13,rad:portrait?.27:.24},small:{cy:portrait?.36:.3,rad:portrait?.16:.13},big:{cy:portrait?.28:.2,rad:portrait?.3:.24}};
+  target=P[name];
+}
+
+/* ---------- hearts & petals ---------- */
+var parts=[];
+function heart(x,y,s){fc.beginPath();fc.moveTo(x,y+s*.35);
+  fc.bezierCurveTo(x-s,y-s*.3,x-s*.45,y-s,x,y-s*.4);
+  fc.bezierCurveTo(x+s*.45,y-s,x+s,y-s*.3,x,y+s*.35);fc.fill();}
+function pop(x,y,n,power){
+  var cols=['#ff5c85','#ffb347','#ffd9a8','#ff8aa0','#b58cff'];
+  for(var i=0;i<n;i++){var a=Math.random()*6.283,v=(.4+Math.random())*power;
+    parts.push({x:x,y:y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-power*.5,r:Math.random()*6,vr:(Math.random()-.5)*.2,
+      s:5+Math.random()*9,c:cols[i%5],life:1,heart:Math.random()<.55});}
+}
+function rain(n){for(var i=0;i<n;i++){parts.push({x:Math.random()*W,y:-20-Math.random()*H*.5,vx:(Math.random()-.5)*1.5,vy:1+Math.random()*2.5,
+  r:Math.random()*6,vr:(Math.random()-.5)*.1,s:6+Math.random()*9,c:['#ff5c85','#ffb347','#ffd9a8','#ff8aa0'][i%4],life:1,heart:Math.random()<.5,rain:1});}}
+
+/* ---------- loop ---------- */
+var t0=performance.now();
+function frame(now){
+  var T=(now-t0)/1000;
+  mx+=(tmx-mx)*.05;my+=(tmy-my)*.05;
+  pose.cy+=(target.cy-pose.cy)*.06;pose.rad+=(target.rad-pose.rad)*.06;
+  burst*=.965;
+  gl.uniform2f(U.R,cv.width,cv.height);gl.uniform2f(U.C,0,pose.cy);gl.uniform2f(U.M,mx,my);
+  gl.uniform1f(U.T,T+20);gl.uniform1f(U.B,burst);gl.uniform1f(U.RAD,pose.rad);
+  gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+  fc.clearRect(0,0,W,H);
+  for(var i=parts.length-1;i>=0;i--){var p=parts[i];
+    p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;
+    if(!p.rain){p.vy+=.14;p.vx*=.99;p.life-=.0075;}else if(p.y>H+30){parts.splice(i,1);continue;}
+    if(p.life<=0){parts.splice(i,1);continue;}
+    fc.globalAlpha=Math.max(p.life,0);fc.fillStyle=p.c;
+    if(p.heart){heart(p.x,p.y,p.s);}
+    else{fc.save();fc.translate(p.x,p.y);fc.rotate(p.r);fc.beginPath();fc.ellipse(0,0,p.s*.7,p.s*.32,0,0,6.283);fc.fill();fc.restore();}
+  }
+  fc.globalAlpha=1;
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+function orbXY(){var m=Math.min(W,H);return [W/2,H/2-target.cy*m];}
+
+/* ---------- flow ---------- */
+function $(id){return document.getElementById(id);}
+function show(id){document.querySelectorAll('.stage').forEach(function(s){s.classList.toggle('on',s.id===id);});}
+
+$('open').onclick=function(){
+  var o=orbXY();burst=1;pop(o[0],o[1],70,7);rain(40);
+  setPose('big');show('s1');
+  var lines=['you make boring days feel lighter','your smile is a whole mood','nobody laughs like you do','you remember the small things','you are easy to talk to','you walk in and the room changes'];
+  lines.forEach(function(l,i){setTimeout(function(){
+    var d=document.createElement('div');d.className='note';d.textContent=l;
+    d.style.setProperty('--x',(6+Math.random()*(W<500?48:70))+'%');
+    d.style.setProperty('--r',(Math.random()*8-4)+'deg');d.style.setProperty('--t',(6+Math.random()*2)+'s');
+    document.body.appendChild(d);setTimeout(function(){d.remove();},9000);
+    burst=Math.max(burst,.45);
+  },700+i*1100);});
+  setTimeout(function(){$('toQ').style.visibility='visible';},700+lines.length*1100-1500);
+};
+$('toQ').onclick=function(){setPose('small');startQ();show('s2');};
+
+var Q=[
+ {q:'Be honest: chai or coffee?',o:[['Chai, always','Correct answer. Respect.'],['Coffee','Okay, villain origin story noted.'],['Neither, I live on snacks','Finally, someone who understands life.']]},
+ {q:'When you say "five minutes", you actually mean?',o:[['Five minutes','Lies, but cute lies.'],['Twenty, maybe thirty','Honesty detected. Big points.'],['I haven\'t even started getting ready','Same energy, no judgement.']]},
+ {q:'How funny are Hitesh\'s jokes?',o:[['10 out of 10','Wow, he did not pay you for this.'],['Depends on the day','Diplomatic. Dangerous. I like it.'],['He tries, bless him','He read this and is crying a little.']]}
+];
+var qi=0;
+function startQ(){qi=0;renderQ();}
+function renderQ(){
+  var q=Q[qi];$('qt').textContent=q.q;
+  $('dots').innerHTML=Q.map(function(_,i){return '<i class="'+(i<=qi?'d':'')+'"></i>';}).join('');
+  var box=$('qo');box.innerHTML='';$('qr').textContent='';$('qn').style.display='none';
+  q.o.forEach(function(op){
+    var b=document.createElement('button');b.className='opt';b.textContent=op[0];
+    b.onclick=function(){
+      box.querySelectorAll('button').forEach(function(x){x.disabled=true;});b.classList.add('picked');b.disabled=false;
+      $('qr').textContent=op[1];burst=.8;var r=b.getBoundingClientRect();pop(r.left+r.width/2,r.top,18,5);
+      $('qn').textContent=qi<Q.length-1?'Next':'Okay, and now?';$('qn').style.display='inline-block';
+    };box.appendChild(b);
+  });
+}
+$('qn').onclick=function(){
+  if(qi<Q.length-1){qi++;renderQ();}
+  else{setPose('big');show('s3');}
+};
+
+/* the shy No button */
+var no=$('no'),dodges=0;
+var taunts=['Nice try.','The button is shy today.','Not that one.','Your finger is slow.','Really? Still trying?','It is not going to happen.','Okay, the Yes button looks lonely.','Just press Yes, Anjali.'];
+function dodge(e){
+  if(e){e.preventDefault&&e.preventDefault();}
+  var bw=no.offsetWidth,bh=no.offsetHeight,m=14,px=window._px||W/2,py=window._py||H/2,x,y,tries=0,yr=$('yes').getBoundingClientRect();
+  no.classList.add('fly');
+  do{x=m+Math.random()*(W-bw-2*m);y=m+Math.random()*(H-bh-2*m);tries++;
+    var far=Math.hypot(x+bw/2-px,y+bh/2-py)>150;
+    var hit=x<yr.right+20&&x+bw>yr.left-20&&y<yr.bottom+20&&y+bh>yr.top-20;
+  }while((!far||hit)&&tries<40);
+  no.style.left=x+'px';no.style.top=y+'px';
+  $('taunt').textContent=taunts[dodges%taunts.length];dodges++;
+}
+addEventListener('pointermove',function(e){window._px=e.clientX;window._py=e.clientY;
+  if($('s3').classList.contains('on')){var r=no.getBoundingClientRect();
+    if(Math.hypot(e.clientX-(r.left+r.width/2),e.clientY-(r.top+r.height/2))<Math.max(r.width,r.height)*.85)dodge();}});
+['pointerenter','pointerdown','focus'].forEach(function(ev){no.addEventListener(ev,dodge);});
+no.addEventListener('touchstart',function(e){window._px=e.touches[0].clientX;window._py=e.touches[0].clientY;dodge(e);},{passive:false});
+no.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();dodge();});
+
+$('yes').onclick=function(){
+  no.style.display='none';show('s4');setPose('big');
+  var o=orbXY();[0,250,600,1100].forEach(function(d){setTimeout(function(){burst=1;pop(o[0],o[1],80,8);rain(25);},d);});
+  var msg='Hi Hitesh, this is Anjali. I clicked yes, so let\'s plan to meet!';
+  $('wa').href='https://wa.me/919554022084?text='+encodeURIComponent(msg);
+};
+setPose('land');
+})();
+</script>
+</body>
+</html>
