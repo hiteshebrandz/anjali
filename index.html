@@ -2,144 +2,162 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Anjali, five letters for you</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>A tiny game for Anjali</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#3a1c3d;--soft:#6e4a6c;--coral:#e8505b;--cream:#fff4ea;--paper:#fffaf3}
-*{box-sizing:border-box;margin:0}
-html,body{height:100%;overflow:hidden;font-family:Figtree,system-ui,sans-serif;color:var(--ink)}
-body{background:linear-gradient(180deg,#ffd9c4 0%,#f7a9b9 38%,#b9a2e6 72%,#5d4a8c 100%);background-size:100% 140%;animation:sky 24s ease-in-out infinite alternate}
-@keyframes sky{to{background-position:0 100%}}
+:root{--ink:#1d2b3a;--mint:#c9f1e0;--sun:#ffd23f;--coral:#ff6b6b;--sky:#5ec2ff;--white:#fffdf7}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;font-family:Outfit,system-ui,sans-serif;color:var(--ink);touch-action:none;
+  background:var(--mint) radial-gradient(rgba(29,43,58,.13) 1.5px,transparent 1.6px) 0 0/22px 22px}
 canvas{position:fixed;inset:0;width:100%;height:100%}
-#fx{pointer-events:none;z-index:6}
-main{position:fixed;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
-.top{font-family:"Young Serif",serif;font-size:clamp(28px,6vw,46px);line-height:1.1;max-width:640px}
-.sub{margin-top:10px;font-size:17px;color:var(--soft);max-width:420px;line-height:1.5}
-.hearts{display:flex;gap:8px;justify-content:center;margin:0 0 22px}
-.hearts i{width:14px;height:13px;background:rgba(58,28,61,.22);clip-path:path("M7 13C-5 5 1-3 7 2c6-5 12 3 0 11z")}
-.hearts i.d{background:var(--coral)}
-.scene{perspective:900px;margin-top:34px}
-.env{position:relative;width:min(300px,78vw);aspect-ratio:3/2;cursor:pointer;transform-style:preserve-3d;transition:transform .5s;border:0;background:none;padding:0;animation:bob 4s ease-in-out infinite}
-@keyframes bob{50%{translate:0 -8px}}
-.env .back,.env .front{position:absolute;inset:0;border-radius:6px}
-.env .back{background:#f3d3bf;box-shadow:0 26px 50px rgba(58,28,61,.35)}
-.env .front{background:var(--cream);clip-path:polygon(0 0,50% 58%,100% 0,100% 100%,0 100%);filter:drop-shadow(0 -2px 6px rgba(0,0,0,.06))}
-.env .flap{position:absolute;left:0;right:0;top:0;height:58%;background:#ffe9d8;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .7s;z-index:2}
-.env .seal{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ff7b83,var(--coral) 60%,#b52a37);z-index:3;display:grid;place-items:center;color:#fff;font-family:"Young Serif",serif;font-size:19px;box-shadow:0 4px 10px rgba(120,20,30,.4);transition:opacity .3s}
-.env.open .flap{transform:rotateX(180deg)}.env.open .seal{opacity:0}
-.tap{margin-top:26px;font-family:Kalam,cursive;font-size:21px;color:var(--soft)}
-.paper{position:fixed;inset:0;z-index:5;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(58,28,61,.4);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.paper.on{display:flex}
-.sheet{width:min(500px,100%);max-height:92vh;overflow:auto;background:repeating-linear-gradient(var(--paper) 0 31px,#f1dccb 31px 32px);border-radius:4px;padding:34px 28px 26px;box-shadow:0 30px 80px rgba(30,5,40,.5);animation:up .6s cubic-bezier(.2,.8,.2,1);text-align:left}
-@keyframes up{from{transform:translateY(60px) rotate(2deg);opacity:0}}
-.sheet h3{font-family:"Young Serif",serif;font-weight:400;font-size:27px;margin-bottom:10px;line-height:1.15}
-.sheet .txt{font-family:Kalam,cursive;font-size:21px;line-height:32px;white-space:pre-line;min-height:96px}
-.sig{font-family:Kalam,cursive;font-size:22px;margin-top:12px;color:var(--coral);font-weight:700}
-.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
-button.b,a.b{font:inherit;font-weight:600;font-size:16px;cursor:pointer;border:0;border-radius:999px;padding:13px 24px;background:var(--coral);color:#fff;text-decoration:none;display:inline-block;transition:transform .15s,box-shadow .2s;box-shadow:0 8px 20px rgba(232,80,91,.35)}
-button.b:hover,a.b:hover{transform:translateY(-2px)}
-button.b:focus-visible,a.b:focus-visible,.env:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
-button.alt{background:transparent;color:var(--ink);box-shadow:none;border:1.5px solid rgba(58,28,61,.4)}
-.hide{display:none!important}
-@media(prefers-reduced-motion:reduce){.env,body{animation:none}.sheet{animation:none}}
+.hud{position:fixed;top:max(14px,env(safe-area-inset-top));left:14px;right:14px;display:none;justify-content:space-between;z-index:3;pointer-events:none}
+.hud.on{display:flex}
+.pill{background:var(--white);border:3px solid var(--ink);border-radius:999px;padding:7px 18px;font-weight:600;font-size:19px;box-shadow:3px 3px 0 var(--ink)}
+.panel{position:fixed;inset:0;z-index:4;display:none;align-items:center;justify-content:center;padding:20px;touch-action:auto}
+.panel.on{display:flex}
+.card{width:min(460px,100%);background:var(--white);border:3px solid var(--ink);border-radius:26px;padding:30px 26px 26px;box-shadow:7px 7px 0 var(--ink);text-align:center;animation:pop .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{from{transform:scale(.85) rotate(-2deg);opacity:0}}
+h1{font-family:"Bagel Fat One",cursive;font-weight:400;font-size:clamp(34px,8vw,46px);line-height:1.05}
+h2{font-family:"Bagel Fat One",cursive;font-weight:400;font-size:30px;line-height:1.1}
+p{margin-top:12px;font-size:18px;line-height:1.45;font-weight:400}
+.tag{display:inline-block;background:var(--sky);border:3px solid var(--ink);border-radius:10px;padding:3px 12px;font-weight:600;font-size:15px;rotate:-3deg;margin-bottom:14px}
+.big{font-family:"Bagel Fat One",cursive;font-size:72px;line-height:1;color:var(--coral);-webkit-text-stroke:3px var(--ink);paint-order:stroke fill;margin-top:8px}
+button,a.btn{font:inherit;font-weight:600;font-size:19px;cursor:pointer;color:var(--ink);background:var(--sun);border:3px solid var(--ink);border-radius:16px;padding:13px 26px;box-shadow:4px 4px 0 var(--ink);text-decoration:none;display:inline-block;transition:transform .1s,box-shadow .1s;margin-top:20px;touch-action:manipulation}
+button:active,a.btn:active{transform:translate(4px,4px);box-shadow:0 0 0 var(--ink)}
+button:focus-visible,a.btn:focus-visible{outline:3px dashed var(--coral);outline-offset:4px}
+.alt{background:var(--white)}
+.opts{display:grid;gap:12px;margin-top:20px}
+.opts button{margin:0;text-align:left;font-weight:500}
+.opts button.pk{background:var(--sky)}
+.opts button[disabled]{opacity:.5}
+.rep{margin-top:16px;font-weight:600;color:var(--coral);min-height:26px}
+.two{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+@media(prefers-reduced-motion:reduce){.card{animation:none}}
 </style>
 </head>
 <body>
-<canvas id="bg"></canvas><canvas id="fx"></canvas>
-<main id="m">
-  <div class="hearts" id="hs"></div>
-  <h1 class="top" id="tt"></h1>
-  <p class="sub" id="ss"></p>
-  <div class="scene"><button class="env" id="env" aria-label="Open the letter"><div class="back"></div><div class="front"></div><div class="flap"></div><div class="seal">A</div></button></div>
-  <div class="tap" id="tp">tap the envelope</div>
-</main>
-<div class="paper" id="pp"><div class="sheet" id="sh"></div></div>
+<canvas id="c"></canvas>
+<div class="hud" id="hud"><div class="pill" id="sc">Stars 0</div><div class="pill" id="tm">25</div></div>
+
+<div class="panel on" id="p0"><div class="card">
+  <div class="tag" id="tg">for Anjali only</div>
+  <h1>Hey, want to play a tiny game?</h1>
+  <p>Catch the falling stars and hearts with your chai cup. Dodge the Monday clouds. Twenty-five seconds, no pressure.</p>
+  <button id="go">Let's play</button>
+</div></div>
+
+<div class="panel" id="p1"><div class="card">
+  <div class="tag">time is up</div>
+  <h2 id="rt"></h2>
+  <div class="big" id="rs">0</div>
+  <p id="rm"></p>
+  <button id="bn">Bonus round</button>
+</div></div>
+
+<div class="panel" id="p2"><div class="card">
+  <div class="tag" id="qn"></div>
+  <h2 id="qt"></h2>
+  <div class="opts" id="qo"></div>
+  <div class="rep" id="qr"></div>
+  <button id="qx" style="display:none">Next</button>
+</div></div>
+
+<div class="panel" id="p3"><div class="card">
+  <div class="tag">the real prize</div>
+  <h2>Let's plan to meet with Hitesh. Only if you feel okay!</h2>
+  <p>You earned it. Pick whatever feels right.</p>
+  <div class="two"><button id="yes">Yes, let's do it</button><button class="alt" id="no">Not right now</button></div>
+</div></div>
+
+<div class="panel" id="p4"><div class="card">
+  <div class="tag">achievement unlocked</div>
+  <h1>You said yes!</h1>
+  <p>Hitesh is probably dancing in his room. Tell him when you are free.</p>
+  <a class="btn" id="wa" target="_blank" rel="noopener">Talk to Hitesh</a>
+</div></div>
+
+<div class="panel" id="p5"><div class="card">
+  <h2>No problem at all.</h2>
+  <p>Thanks for playing. Hope the game made you smile.</p>
+  <button id="again">Play again</button>
+</div></div>
 
 <script>
 (function(){
 "use strict";
-/* ===== EDIT THIS PART: make it about her ===== */
+/* ===== EDIT: make it about her ===== */
 var NAME='Anjali', FROM='Hitesh', PHONE='919554022084';
-var LIKES=[];            // e.g. ['anime','night drives','mango shake'], things SHE told you she loves
-var INSIDE_JOKE='';      // optional: a real moment from you two, one short sentence
-var PLAN='a chai and a long chat';
-/* ============================================= */
-var likeTxt=LIKES.length?('I love how you are into '+LIKES.slice(0,-1).join(', ')+(LIKES.length>1?' and ':'')+LIKES[LIKES.length-1]+'. It tells me you have taste and a soul that enjoys small things.'):'The way you enjoy the little things, a good song, a good laugh, a good cup of something warm, makes people around you enjoy them too.';
-var L=[
- {t:'Hi '+NAME+',',x:'This is a small thing I made with my own hands, a bit of code and a lot of nerves.\n\nBefore anything else: I am not trying to impress you with magic tricks. I only wanted to say something kind to you in a way you would remember.'},
- {t:'What I notice',x:likeTxt+(INSIDE_JOKE?'\n\n'+INSIDE_JOKE:'')+'\n\nYou are easy to be around, and that is rarer than people think.'},
- {t:'A tiny confession',x:'I rewrote the first line of these letters nine times.\nI also tested the page on my phone four times and smiled at it each time like a fool.\n\nIf you are laughing a little, my plan is working.',choice:[['Okay, that is cute','Noted. Hitesh is celebrating quietly in a corner.'],['You are so dramatic','Correct. But sincerely dramatic.']]},
- {t:'What I am really asking',x:'No big dramatic plan. Just '+PLAN+', somewhere comfortable, where you can leave whenever you want and I will not mind.\n\nYou are in charge of the day, the place and the time.'},
- {t:'So, '+NAME+'...',x:'Would you like to meet me sometime?\n\nWhatever you say, thank you for reading all of this.',ask:1}
-];
-var i=0,env=document.getElementById('env'),pp=document.getElementById('pp'),sh=document.getElementById('sh');
-function $(x){return document.getElementById(x);}
-var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
-function head(){
-  $('hs').innerHTML=L.map(function(_,k){return '<i class="'+(k<=i?'d':'')+'"></i>';}).join('');
-  $('tt').textContent=i===0?'Five letters, one for each thing I wanted to say.':'Letter '+(i+1)+' of '+L.length;
-  $('ss').textContent=i===0?'Open them in order, ' + NAME + '. Take your time.':'';
-  env.classList.remove('open');$('tp').textContent='tap the envelope';
-}
-function typer(el,t,done){if(reduce){el.textContent=t;done();return;}var k=0;(function s(){el.textContent=t.slice(0,k++);if(k<=t.length)setTimeout(s,22);else done();})();}
-env.onclick=function(){
-  if(env.classList.contains('open'))return;
-  env.classList.add('open');$('tp').textContent='';
-  setTimeout(function(){openLetter(L[i]);},reduce?0:700);
-};
-function openLetter(l){
-  sh.innerHTML='<h3></h3><div class="txt"></div><div class="reply sig hide"></div><div class="row hide"></div>';
-  sh.querySelector('h3').textContent=l.t;pp.classList.add('on');
-  var row=sh.querySelector('.row');
-  typer(sh.querySelector('.txt'),l.x,function(){
-    row.classList.remove('hide');
-    if(l.choice){l.choice.forEach(function(c){var b=document.createElement('button');b.className='b alt';b.textContent=c[0];
-      b.onclick=function(){sh.querySelector('.reply').textContent=c[1];sh.querySelector('.reply').classList.remove('hide');row.innerHTML='';row.appendChild(nextBtn());burst(innerWidth/2,innerHeight/2,26);};row.appendChild(b);});}
-    else if(l.ask){var y=document.createElement('button');y.className='b';y.textContent='Yes, I would like that';y.onclick=yes;
-      var n=document.createElement('button');n.className='b alt';n.textContent='Maybe another time';n.onclick=no;row.appendChild(y);row.appendChild(n);}
-    else row.appendChild(nextBtn());
-  });
-}
-function nextBtn(){var b=document.createElement('button');b.className='b';b.textContent='Next letter';
-  b.onclick=function(){pp.classList.remove('on');i++;head();};return b;}
-function yes(){
-  sh.innerHTML='<h3>You said yes.</h3><div class="txt">I am smiling at my phone like an idiot. Thank you, '+NAME+'.\n\nLet us pick a time that suits you. Send me a message and tell me when you are free.</div><div class="sig">- '+FROM+'</div><div class="row"></div>';
-  var a=document.createElement('a');a.className='b';a.target='_blank';a.rel='noopener';a.textContent='Message '+FROM;
-  a.href='https://wa.me/'+PHONE+'?text='+encodeURIComponent('Hi '+FROM+', this is '+NAME+'. I read your letters, and yes, I would like to meet. Maybe we could plan '+PLAN+'?');
-  sh.querySelector('.row').appendChild(a);
-  [0,300,700,1200].forEach(function(d){setTimeout(function(){burst(innerWidth/2,innerHeight*.4,60);},d);});
-}
-function no(){
-  sh.innerHTML='<h3>Thank you for being honest.</h3><div class="txt">That is completely okay. I hope the letters made you smile anyway.\n\nWishing you a lovely day, '+NAME+'.</div><div class="sig">- '+FROM+'</div><div class="row"><button class="b alt" id="rr">Read again</button></div>';
-  $('rr').onclick=function(){pp.classList.remove('on');i=0;head();};
-}
-/* ---------- background lanterns + hearts ---------- */
-var bg=$('bg'),b=bg.getContext('2d'),fx=$('fx'),f=fx.getContext('2d'),W,H,mx=0,L2=[],P=[];
-function size(){W=bg.width=fx.width=innerWidth;H=bg.height=fx.height=innerHeight;}
+var LIKE='chai';   // something she really likes: the cup becomes this word's drink
+/* ================================== */
+var $=function(x){return document.getElementById(x);};
+var cv=$('c'),x=cv.getContext('2d'),W,H,dpr;
+function size(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0);}
 addEventListener('resize',size);size();
-addEventListener('pointermove',function(e){mx=e.clientX/W-.5;});
-for(var k=0;k<26;k++)L2.push({x:Math.random(),y:Math.random(),r:10+Math.random()*34,v:.0003+Math.random()*.0007,p:Math.random()*6.3,c:['255,170,120','255,120,150','255,214,150','200,170,255'][k%4],z:.3+Math.random()});
-function heart(x,y,s){f.beginPath();f.moveTo(x,y+s*.35);f.bezierCurveTo(x-s,y-s*.3,x-s*.45,y-s,x,y-s*.4);f.bezierCurveTo(x+s*.45,y-s,x+s,y-s*.3,x,y+s*.35);f.fill();}
-function burst(x,y,n){for(var k=0;k<n;k++){var a=Math.random()*6.28,v=2+Math.random()*6;P.push({x:x,y:y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-3,s:5+Math.random()*9,l:1,c:['#e8505b','#ff8aa0','#ffd1a8','#fff'][k%4]});}}
-function tick(t){
-  b.clearRect(0,0,W,H);
-  L2.forEach(function(o){o.y-=o.v;if(o.y<-.1){o.y=1.1;o.x=Math.random();}
-    var x=o.x*W+Math.sin(t/2000+o.p)*18+mx*60*o.z,y=o.y*H,g=b.createRadialGradient(x,y,0,x,y,o.r*2);
-    g.addColorStop(0,'rgba('+o.c+',.55)');g.addColorStop(.35,'rgba('+o.c+',.22)');g.addColorStop(1,'rgba('+o.c+',0)');
-    b.fillStyle=g;b.beginPath();b.arc(x,y,o.r*2,0,6.3);b.fill();});
-  f.clearRect(0,0,W,H);
-  for(var k=P.length-1;k>=0;k--){var p=P[k];p.x+=p.vx;p.y+=p.vy;p.vy+=.14;p.vx*=.99;p.l-=.01;if(p.l<=0){P.splice(k,1);continue;}
-    f.globalAlpha=p.l;f.fillStyle=p.c;heart(p.x,p.y,p.s);}
-  f.globalAlpha=1;requestAnimationFrame(tick);
+function show(id){document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('on',p.id===id);});}
+var Q=[
+ {q:'Pick one for the weekend',o:[['Sleep till noon','Wise. Sleep is a love language.'],['Random road trip','Bold. Hitesh is already packing.']]},
+ {q:'Your reply speed on WhatsApp is...',o:[['Instant, always','Liar. But a cute liar.'],['Whenever I see it','Honest queen. Respect.']]},
+ {q:'Best snack for a long chat?',o:[['Fries','Correct. Fries solve everything.'],['Something sweet','Dangerous answer. Also correct.']]}
+];
+var st='idle',score=0,time=25,items=[],pop=[],cup={x:0,w:96},last=0,spawn=0,qi=0;
+function startGame(){score=0;time=25;items=[];pop=[];cup.x=W/2;spawn=0;st='play';
+  $('hud').classList.add('on');show('none');$('sc').textContent='Stars 0';$('tm').textContent='25';last=performance.now();}
+function move(e){var t=e.touches?e.touches[0]:e;cup.x=Math.max(cup.w/2,Math.min(W-cup.w/2,t.clientX));}
+addEventListener('pointermove',move);addEventListener('touchmove',function(e){move(e);},{passive:true});
+function star(cx,cy,r){x.beginPath();for(var i=0;i<10;i++){var a=-Math.PI/2+i*Math.PI/5,rr=i%2?r*.45:r;x.lineTo(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr);}x.closePath();}
+function heart(cx,cy,s){x.beginPath();x.moveTo(cx,cy+s*.5);x.bezierCurveTo(cx-s*1.1,cy-s*.1,cx-s*.5,cy-s,cx,cy-s*.4);x.bezierCurveTo(cx+s*.5,cy-s,cx+s*1.1,cy-s*.1,cx,cy+s*.5);x.closePath();}
+function cloud(cx,cy,s){x.beginPath();x.arc(cx-s*.5,cy,s*.45,0,6.3);x.arc(cx,cy-s*.25,s*.6,0,6.3);x.arc(cx+s*.55,cy,s*.45,0,6.3);x.rect(cx-s*.5,cy,s*1.05,s*.45);}
+function paint(fill){x.fillStyle=fill;x.fill();x.lineWidth=3;x.strokeStyle='#1d2b3a';x.stroke();}
+function drawCup(){var cy=H-max(70,H*.1),w=cup.w;x.save();x.translate(cup.x,cy);
+  x.beginPath();x.moveTo(-w/2,-30);x.lineTo(w/2,-30);x.lineTo(w/2-12,26);x.quadraticCurveTo(0,34,-w/2+12,26);x.closePath();paint('#fffdf7');
+  x.beginPath();x.arc(w/2+2,-6,15,-1.2,1.3);x.lineWidth=7;x.strokeStyle='#1d2b3a';x.stroke();
+  x.beginPath();x.rect(-w/2+6,-30,w-12,12);x.fillStyle='#ff6b6b';x.fill();
+  x.restore();return cy;}
+function max(a,b){return a>b?a:b;}
+function loop(now){
+  var dt=Math.min((now-last)/1000,.05);last=now;
+  x.clearRect(0,0,W,H);
+  var cy=drawCup();
+  if(st==='play'){
+    time-=dt;spawn-=dt;
+    if(spawn<=0){spawn=.5-Math.min(.25,(25-time)*.01);var r=Math.random();
+      items.push({k:r<.6?'s':r<.78?'h':'c',x:20+Math.random()*(W-40),y:-30,v:130+Math.random()*80+(25-time)*5,rot:Math.random()*6});}
+    if(time<=0){end();}
+    $('tm').textContent=Math.ceil(max(time,0));
+  }
+  for(var i=items.length-1;i>=0;i--){var o=items[i];o.y+=o.v*dt;o.rot+=dt*2;
+    var hit=st==='play'&&o.y>cy-34&&o.y<cy+10&&Math.abs(o.x-cup.x)<cup.w/2+8;
+    if(hit){var d=o.k==='s'?1:o.k==='h'?3:-2;score=max(0,score+d);$('sc').textContent='Stars '+score;
+      pop.push({x:o.x,y:o.y,t:.7,s:(d>0?'+':'')+d,c:d>0?'#1d2b3a':'#ff6b6b'});items.splice(i,1);if(navigator.vibrate)navigator.vibrate(d>0?8:30);continue;}
+    if(o.y>H+40){items.splice(i,1);continue;}
+    x.save();x.translate(o.x,o.y);x.rotate(Math.sin(o.rot)*.3);
+    if(o.k==='s'){star(0,0,19);paint('#ffd23f');}
+    else if(o.k==='h'){heart(0,0,20);paint('#ff6b6b');}
+    else{cloud(0,0,22);paint('#b9c4d0');}
+    x.restore();}
+  for(var j=pop.length-1;j>=0;j--){var p=pop[j];p.t-=dt;p.y-=40*dt;if(p.t<=0){pop.splice(j,1);continue;}
+    x.globalAlpha=p.t;x.font='700 26px Outfit';x.fillStyle=p.c;x.fillText(p.s,p.x-8,p.y);x.globalAlpha=1;}
+  requestAnimationFrame(loop);
 }
-requestAnimationFrame(tick);
-/* envelope tilt */
-$('m').addEventListener('pointermove',function(e){if(env.classList.contains('open'))return;
-  env.style.transform='rotateY('+((e.clientX/W-.5)*18)+'deg) rotateX('+(-(e.clientY/H-.5)*14)+'deg)';});
-head();
+function end(){st='over';$('hud').classList.remove('on');
+  var r=score<8?['Cute effort','The cup was clearly lagging, not you.']:score<22?['Pretty good!','Hitesh is impressed. He only scored 11.']:['Star catcher!','Okay, show-off. Teach Hitesh your skills.'];
+  $('rt').textContent=r[0];$('rs').textContent=score;$('rm').textContent=r[1];show('p1');}
+$('go').onclick=startGame;
+$('bn').onclick=function(){qi=0;ren();show('p2');};
+function ren(){var q=Q[qi];$('qn').textContent='Bonus '+(qi+1)+' of '+Q.length;$('qt').textContent=q.q;$('qr').textContent='';$('qx').style.display='none';
+  var b=$('qo');b.innerHTML='';q.o.forEach(function(o){var e=document.createElement('button');e.textContent=o[0];
+    e.onclick=function(){b.querySelectorAll('button').forEach(function(z){z.disabled=true;});e.disabled=false;e.className='pk';$('qr').textContent=o[1];$('qx').style.display='inline-block';};b.appendChild(e);});}
+$('qx').onclick=function(){if(qi<Q.length-1){qi++;ren();}else show('p3');};
+$('no').onclick=function(){show('p5');};
+$('again').onclick=function(){show('p0');};
+$('yes').onclick=function(){
+  $('wa').href='https://wa.me/'+PHONE+'?text='+encodeURIComponent('Hi '+FROM+', this is '+NAME+'. I scored '+score+' in your game, so yes, let\'s plan to meet!');
+  show('p4');};
+$('tg').textContent='for '+NAME+' only';
+st='idle';cup.x=innerWidth/2;last=performance.now();requestAnimationFrame(loop);
 })();
 </script>
 </body>
